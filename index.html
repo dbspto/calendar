@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      :root {
+        /* Dark mode (default) */
+        --bg: #0f1724;
+        --card: #0b1220;
+        --muted: #9aa6bf;
+        --accent: #6ee7b7;
+        --accent-2: #4ad58a;
+        --panel: #071021;
+        --glass: rgba(255,255,255,0.03);
+        --radius: 10px;
+        --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        --text: #e6eef8;
+        --event-pill: #052026;
+        --event-pill-blue: #003366;
+      }
+      :root[data-theme="light"], body[data-theme="light"] {
+        /* NEW Light mode template */
+        --bg: #ffffff;
+        --card: #f0f4f8;
+        --muted: #6b7280;
+        --accent: #2563eb;
+        --accent-2: #60a5fa;
+        --panel: #e2e8f0;
+        --glass: rgba(0,0,0,0.05);
+        --text: #1a202c;
+        --event-pill: #edf2f7;
+        --event-pill-blue: #2b6cb0;
+        /* Ensure lighter gradient background */
+        background: linear-gradient(180deg, #e2e8f0 0%, var(--bg) 100%) !important;
+      }
+      /* Update event pill colors in light mode */
+      body[data-theme="light"] .c-Green { background: linear-gradient(90deg, #86efac, #22c55e); color: #052e16; }
+      body[data-theme="light"] .c-Red   { background: linear-gradient(90deg, #fca5a5, #ef4444); color: #450a0a; }
+      body[data-theme="light"] .c-Yellow{ background: linear-gradient(90deg, #fef9c3, #eab308); color: #422006; }
+      body[data-theme="light"] .c-Purple{ background: linear-gradient(90deg, #d8b4fe, #a855f7); color: #3b0764; }
+      body[data-theme="light"] .c-Blue  { background: linear-gradient(90deg, #93c5fd, #3b82f6); color: #172554; }
+
+      body {
+        background-color: var(--bg);
+        margin:0;
+        font-family:var(--font-sans);
+        color:var(--text);
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+        padding:20px;
+        min-height:100vh;
+      }
+
+  /* Layout: single column */
+  .container {
+    max-width:1100px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .title { display:flex; gap:12px; align-items:center; }
+  .logo { width:48px; height:48px; border-radius:12px; background: linear-gradient(135deg,#7ef9a2,#3ad0ff); display:flex; align-items:center; justify-content:center; color:#052026; font-weight:800; font-size:18px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+  h1{font-size:18px;margin:0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  .controls { display:flex; gap:12px; align-items:center; }
+
+  .toggle {
+    background:transparent;
+    border-radius:8px;
+    padding:6px;
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+
+  .btn {
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.05);
+    color:var(--muted);
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn.active {
+    color:#02181a;
+    background: linear-gradient(90deg,var(--accent),var(--accent-2));
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .month-nav { display:flex; gap:8px; align-items:center; }
+
+  main.card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: var(--radius);
+    padding:18px;
+    box-shadow: 0 8px 24px rgba(3,6,17,0.6);
+  }
+
+  .calendar-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .month-title { font-size:20px; font-weight:700; letter-spacing:0.4px; }
+  .small { color:var(--muted); font-size:13px; }
+
+  .grid {
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap:8px;
+  }
+
+  .weekday {
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    padding:6px 4px;
+  }
+
+  .day {
+    min-height:96px;
+    background:var(--glass);
+    border-radius:10px;
+    padding:8px;
+    color:#dce9ff;
+    position:relative;
+    overflow:hidden;
+    /* Remove transform and box-shadow on hover for no movement */
+    transition: box-shadow .12s ease;
+    border:1px solid rgba(255,255,255,0.02);
+    display:flex;
+    flex-direction:column;
+    /* Remove pointer cursor and highlight for month view (handled in JS) */
+  }
+  .day.clickable { cursor:pointer; }
+  .day:hover{
+    /* Remove transform and box-shadow on hover */
+    /* transform:translateY(-4px); box-shadow:0 8px 28px rgba(2,6,23,0.6); */
+  }
+  .day.dim { opacity:0.45; filter:grayscale(0.06); }
+  .day.selected { outline: 3px solid rgba(126,249,162,0.12); box-shadow: 0 12px 28px rgba(0,0,0,0.6); }
+
+  .date-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .date-num {
+    font-size:13px;
+    font-weight:700;
+    display:inline-block;
+    padding:6px 8px;
+    border-radius:8px;
+    background:rgba(0,0,0,0.12);
+  }
+
+  .events {
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    overflow:hidden;
+  }
+
+  .event-pill {
+    font-size:12px;
+    padding:6px 8px;
+    border-radius:999px;
+    font-weight:700;
+    color: var(--event-pill);
+    display:inline-block;
+    max-width:100%;
+    /* Allow wrapping for long event text */
+    white-space:normal;
+    overflow-wrap:break-word;
+    word-break:break-word;
+    text-overflow:ellipsis;
+    /* For consistent height in week view */
+    min-width:0;
+  }
+  /* In grid/month view, stack event pills vertically and allow wrapping */
+  .events {
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    overflow:hidden;
+  }
+  /* In week view, ensure event pills wrap and don't expand parent */
+  .week-day .event-pill {
+    width:100%;
+    box-sizing:border-box;
+    white-space:normal;
+    overflow-wrap:break-word;
+    word-break:break-word;
+  }
+
+  /* Color styles */
+  .c-Green { background: linear-gradient(90deg,#7ef9a2,#4ad58a); color:#022416; }
+  .c-Red   { background: linear-gradient(90deg,#ff8b94,#ff5d6c); color:#2b0306; }
+  .c-Yellow{ background: linear-gradient(90deg,#ffe38a,#ffd14a); color:#2b2100; }
+  .c-Purple{ background: linear-gradient(90deg,#cda3ff,#9b6bff); color:#190a33; }
+  .c-Blue  { background: linear-gradient(90deg,#add8e6,#87ceeb); color:var(--event-pill-blue); }
+
+  .pager {
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:center;
+    margin-top:12px;
+  }
+
+  /* Week view: display days horizontally with compact cells */
+  .week-grid {
+    display:flex;
+    gap:8px;
+  }
+  .week-day {
+    flex:1;
+    min-height:140px;
+    background:var(--glass);
+    border-radius:10px;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .week-day .date-num {
+    margin-bottom:8px;
+    background:rgba(0,0,0,0.12);
+  }
+
+  /* List view */
+  .list-view { display:block; margin-top:12px; }
+  .month-block { margin-bottom:18px; }
+  .month-block h4 { margin:6px 0 8px 0; font-size:15px; }
+  .event-row { display:flex; justify-content:space-between; gap:8px; align-items:center; padding:8px; border-radius:8px; background:rgba(255,255,255,0.01); margin-bottom:6px; border:1px solid rgba(255,255,255,0.02); }
+
+  /* Legend / filter UI */
+  .legend { display:flex; gap:8px; align-items:center; margin-left:8px; }
+  .legend .item { display:flex; gap:8px; align-items:center; font-size:13px; color:var(--muted); cursor:pointer; padding:6px; border-radius:8px; }
+  .legend .item.active {
+    background: rgba(126,249,162,0.08);
+    color: #fff;
+    border:1px solid rgba(126,249,162,0.06);
+  }
+  .legend .item[data-color="All"].active {
+    background: rgba(126,249,162,0.08);
+    color: #fff;
+    border:1px solid rgba(126,249,162,0.06);
+  }
+  .swatch { width:14px; height:14px; border-radius:4px; }
+  /* Make the "All" swatch white */
+  .legend .item[data-color="All"] .swatch {
+    background: #fff !important;
+    background-image: none !important;
+  }
+
+  .select {
+    background:var(--card);
+    border:1px solid rgba(255,255,255,0.04);
+    padding:8px 10px;
+    border-radius:8px;
+    color:var(--muted);
+  }
+
+  /* Responsive */
+  @media (max-width:980px){
+    .container { padding-bottom:40px; }
+    .day { min-height:84px }
+    header { flex-direction:column; align-items:stretch; gap:12px; }
+    .week-grid { flex-direction:column; }
+  }
+
+  /* Toggle Switch Styles */
+  .theme-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-switch input[type="checkbox"] {
+    display: none;
+  }
+  .theme-slider {
+    width: 38px;
+    height: 20px;
+    background: var(--muted);
+    border-radius: 12px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .theme-slider::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  }
+  .theme-switch input[type="checkbox"]:checked + .theme-slider {
+    background: var(--accent);
+  }
+  .theme-switch input[type="checkbox"]:checked + .theme-slider::before {
+    transform: translateX(18px);
+    background: #222;
+  }
+  .theme-switch .theme-icon {
+    font-size: 16px;
+    width: 18px;
+    text-align: center;
+  }
+
+.event-row.c-Green  { background: linear-gradient(90deg,#7ef9a2,#4ad58a); color: #fff !important; }
+.event-row.c-Red    { background: linear-gradient(90deg,#ff8b94,#ff5d6c); color: #fff !important; }
+.event-row.c-Yellow { background: linear-gradient(90deg,#ffe38a,#ffd14a); color: #fff !important; }
+.event-row.c-Purple { background: linear-gradient(90deg,#cda3ff,#9b6bff); color: #fff !important; }
+.event-row.c-Blue   { background: linear-gradient(90deg,#add8e6,#87ceeb); color: #fff !important; }
+    </style>
+</head>
+<body>
+  <div class="container" role="application" aria-label="DBS Calendar">
+    <header>
+      <div class="title">
+        <div class="logo">DBS</div>
+        <div>
+          <h1>DBS Calendar</h1>
+        </div>
+      </div>
+      <div class="controls" role="toolbar" aria-label="Controls">
+        <!-- Theme toggle switch with slider -->
+        <label class="theme-switch" title="Toggle dark/light mode">
+          <span class="theme-icon" id="themeIcon">🌙</span>
+          <input id="themeToggle" type="checkbox" aria-label="Toggle dark/light mode">
+          <span class="theme-slider"></span>
+          <span class="theme-icon" id="themeIconLight">☀️</span>
+        </label>
+        <div class="toggle" role="tablist" aria-label="View toggle">
+          <button id="monthViewBtn" class="btn" role="tab" aria-selected="false">Month View</button>
+          <button id="weekViewBtn" class="btn" role="tab" aria-selected="false">Week View</button>
+          <button id="listViewBtn" class="btn" role="tab" aria-selected="false">List View</button>
+        </div>
+
+        <div class="month-nav" aria-label="Navigation" id="monthNav">
+          <button id="prev" class="btn" aria-label="Previous">◀ Prev</button>
+          <div style="min-width:160px;text-align:center">
+            <div id="periodLabel" class="month-title">Period</div>
+            <div id="subLabel" class="small"> </div>
+          </div>
+          <button id="next" class="btn" aria-label="Next">Next ▶</button>
+        </div>
+
+        <!-- Legend (click to filter in list view) -->
+        <div class="legend" id="legend" role="toolbar" aria-label="Color filters">
+          <div class="item" data-color="All"><div class="swatch" style="background:linear-gradient(90deg,#7ef9a2,#4ad58a)"></div>All</div>
+          <div class="item" data-color="Green"><div class="swatch c-Green"></div>Green</div>
+          <div class="item" data-color="Red"><div class="swatch c-Red"></div>Red</div>
+          <div class="item" data-color="Yellow"><div class="swatch c-Yellow"></div>Yellow</div>
+          <div class="item" data-color="Purple"><div class="swatch c-Purple"></div>Purple</div>
+          <div class="item" data-color="Blue"><div class="swatch c-Blue"></div>Blue</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="card" aria-live="polite">
+      <div class="calendar-header">
+        <div>
+          <div id="titleTop" class="month-title">Month</div>
+        </div>
+        <!-- Remove the hint text -->
+        <!-- <div class="small" id="hintText">Click a date to highlight</div> -->
+      </div>
+
+      <!-- Month area (7x6 grid) -->
+      <div id="monthArea">
+        <div class="grid" id="weekdays">
+          <div class="weekday">Sun</div>
+          <div class="weekday">Mon</div>
+          <div class="weekday">Tue</div>
+          <div class="weekday">Wed</div>
+          <div class="weekday">Thu</div>
+          <div class="weekday">Fri</div>
+          <div class="weekday">Sat</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="grid" id="calendarGrid" aria-label="Calendar days">
+          <!-- 42 day cells -->
+        </div>
+
+        <div class="pager" id="monthPager" role="navigation" aria-label="Month pager">
+          <button id="prevBottom" class="btn">◀ Prev</button>
+          <div id="pagerLabel" class="small" style="min-width:160px;text-align:center"></div>
+          <button id="nextBottom" class="btn">Next ▶</button>
+        </div>
+      </div>
+
+      <!-- Week area (single week row) -->
+      <div id="weekArea" style="display:none;">
+        <div class="week-grid" id="weekGrid">
+          <!-- 7 week-day cells -->
+        </div>
+        <div class="pager" id="weekPager" role="navigation" aria-label="Week pager" style="margin-top:12px;">
+          <button id="prevWeek" class="btn">◀ Prev</button>
+          <div id="weekLabel" class="small" style="min-width:160px;text-align:center"></div>
+          <button id="nextWeek" class="btn">Next ▶</button>
+        </div>
+      </div>
+
+      <!-- List view -->
+      <div id="listArea" style="display:none; margin-top:12px;">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; justify-content:flex-end;">
+          <div class="legend" id="legend" role="toolbar" aria-label="Color filters">
+            <div class="item" data-color="All"><div class="swatch" style="background:linear-gradient(90deg,#7ef9a2,#4ad58a)"></div>All</div>
+            <div class="item" data-color="Green"><div class="swatch c-Green"></div>Green</div>
+            <div class="item" data-color="Red"><div class="swatch c-Red"></div>Red</div>
+            <div class="item" data-color="Yellow"><div class="swatch c-Yellow"></div>Yellow</div>
+            <div class="item" data-color="Purple"><div class="swatch c-Purple"></div>Purple</div>
+            <div class="item" data-color="Blue"><div class="swatch c-Blue"></div>Blue</div>
+          </div>
+        </div>
+        <div id="listContent"></div>
+      </div>
+    </main>
+  </div>
+
+<script>
+/* Events */
+const events = [
+  {"Date":"08/28","Description":"First Day of School","Color":"Green"},
+  {"Date":"09/01","Description":"Labor Day, No School","Color":"Red"},
+  {"Date":"09/11","Description":"Open House","Color":"Green"},
+  {"Date":"09/15","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"09/25","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"09/30","Description":"Picture Day","Color":"Green"},
+  {"Date":"10/02","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"10/09","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"10/10","Description":"Inservice PK-12, No School","Color":"Red"},
+  {"Date":"10/13","Description":"Indigenous People's Day, No School","Color":"Red"},
+  {"Date":"10/16","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"10/20","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"10/23","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"10/24","Description":"Dance (Light up the night)","Color":"Green"},
+  {"Date":"10/30","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"10/30","Description":"Unity Day","Color":"Green"},
+  {"Date":"11/03","Description":"Early Release, PK-12 Conferences","Color":"Yellow"},
+  {"Date":"11/04","Description":"Conferences, No School PK-12","Color":"Red"},
+  {"Date":"11/11","Description":"Veteran's Day, No School","Color":"Red"},
+  {"Date":"11/17","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"11/19","Description":"Picture Retakes","Color":"Green"},
+  {"Date":"11/21","Description":"Movie Night @ 6:30pm","Color":"Green"},
+  {"Date":"11/26","Description":"Holiday Break, No School","Color":"Red"},
+  {"Date":"11/27","Description":"Holiday Break, No School","Color":"Red"},
+  {"Date":"11/28","Description":"Holiday Break, No School","Color":"Red"},
+  {"Date":"12/11","Description":"K-5 December Concert","Color":"Green"},
+  {"Date":"12/15","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"12/22","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/23","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/24","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/25","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/26","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/29","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/30","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"12/31","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"01/01","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"01/02","Description":"Winter Break, No School","Color":"Red"},
+  {"Date":"01/19","Description":"Inservice, PK-12","Color":"Red"},
+  {"Date":"02/03","Description":"National School Counseling Week","Color":"Green"},
+  {"Date":"02/04","Description":"National School Counseling Week","Color":"Green"},
+  {"Date":"02/05","Description":"National School Counseling Week","Color":"Green"},
+  {"Date":"02/06","Description":"Movie Night @ 6:30pm","Color":"Green"},
+  {"Date":"02/09","Description":"Bring An Adult to Music Week","Color":"Green"},
+  {"Date":"02/10","Description":"Bring An Adult to Music Week","Color":"Green"},
+  {"Date":"02/11","Description":"Bring An Adult to Music Week","Color":"Green"},
+  {"Date":"02/12","Description":"Bring An Adult to Music Week","Color":"Green"},
+  {"Date":"02/13","Description":"Bring An Adult to Music Week","Color":"Green"},
+  {"Date":"02/16","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"02/23","Description":"February Break, No School","Color":"Red"},
+  {"Date":"02/24","Description":"February Break, No School","Color":"Red"},
+  {"Date":"02/25","Description":"February Break, No School","Color":"Red"},
+  {"Date":"02/26","Description":"February Break, No School","Color":"Red"},
+  {"Date":"02/27","Description":"February Break, No School","Color":"Red"},
+  {"Date":"03/02","Description":"February Break, No School","Color":"Red"},
+  {"Date":"03/03","Description":"Inservice PK-12, No School","Color":"Red"},
+  {"Date":"03/19","Description":"Early Release PK-12","Color":"Yellow"},
+  {"Date":"03/20","Description":"Conferences, No School PK-12","Color":"Red"},
+  {"Date":"03/21","Description":"Book Fair Kick-Off Event at Norwich","Color":"Green"},
+  {"Date":"03/22","Description":"Book Fair","Color":"Green"},
+  {"Date":"03/23","Description":"Book Fair","Color":"Green"},
+  {"Date":"03/24","Description":"Book Fair","Color":"Green"},
+  {"Date":"03/25","Description":"Book Fair","Color":"Green"},
+  {"Date":"03/26","Description":"Book Fair","Color":"Green"},
+  {"Date":"03/27","Description":"Book Fair","Color":"Green"},
+  {"Date":"03/30","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"04/13","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"04/16","Description":"DBS School Musical @ 6:30pm","Color":"Green"},
+  {"Date":"04/20","Description":"April Break, No School","Color":"Red"},
+  {"Date":"04/21","Description":"April Break, No School","Color":"Red"},
+  {"Date":"04/22","Description":"April Break, No School","Color":"Red"},
+  {"Date":"04/23","Description":"April Break, No School","Color":"Red"},
+  {"Date":"04/24","Description":"April Break, No School","Color":"Red"},
+  {"Date":"05/07","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"05/13","Description":"K to 2 Spring Concert","Color":"Green"},
+  {"Date":"05/14","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"05/21","Description":"3 to 5 Spring Concert","Color":"Green"},
+  {"Date":"05/21","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"05/18","Description":"Late Start PK-8","Color":"Yellow"},
+  {"Date":"05/25","Description":"Memorial Day, No School","Color":"Red"},
+  {"Date":"05/28","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"06/04","Description":"Walk and Ride","Color":"Purple"},
+  {"Date":"06/12","Description":"Ice Cream Social","Color":"Green"},
+  {"Date":"06/15","Description":"Last Day","Color":"Green"},
+  {"Date":"01/14","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"02/11","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"03/11","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"04/08","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"05/13","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"06/10","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"07/08","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"08/12","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"09/09","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"10/14","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"11/11","Description":"PTO Meeting @ 6pm","Color":"Blue"},
+  {"Date":"12/09","Description":"PTO Meeting @ 6pm","Color":"Blue"}
+];
+
+/* Helpers and state */
+function parseEventDate(mmdd, academicStartYear){
+  const [m,s] = mmdd.split('/');
+  const month = parseInt(m,10);
+  const day = parseInt(s,10);
+  const year = (month >= 8) ? academicStartYear : (academicStartYear + 1);
+  return new Date(year, month - 1, day);
+}
+const today = new Date();
+const academicStartYear = (today.getMonth() + 1) >= 8 ? today.getFullYear() : today.getFullYear() - 1;
+
+function buildEventMap(events, academicStartYear){
+  const map = new Map();
+  events.forEach(ev=>{
+    const dt = parseEventDate(ev.Date, academicStartYear);
+    const key = dt.toISOString().slice(0,10);
+    const copy = Object.assign({}, ev);
+    copy._date = dt;
+    if(!map.has(key)) map.set(key, []);
+    map.get(key).push(copy);
+  });
+  return map;
+}
+const eventMap = buildEventMap(events, academicStartYear);
+
+/* months array Aug..Dec then Jan..Jul */
+const months = [];
+for(let m=8;m<=12;m++) months.push({month:m-1, year:academicStartYear});
+for(let m=1;m<=7;m++) months.push({month:m-1, year:academicStartYear + 1});
+
+/* Current view: 'month' (default), 'week', 'list' */
+let currentView = 'month';
+
+/* Current month page index (0..11) */
+let monthIndex = 0;
+(function initMonthIndex(){
+  for(let i=0;i<months.length;i++){
+    if(months[i].month === today.getMonth() && months[i].year === today.getFullYear()){
+      monthIndex = i;
+      break;
+    }
+  }
+})();
+
+/* Week state: weekStartDate (Date) for current week in view */
+let weekStartDate = startOfWeek(new Date()); // default to current week (Sunday)
+
+/* Utility functions */
+function startOfWeek(d){
+  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = copy.getDay();
+  copy.setDate(copy.getDate() - day); // go back to Sunday
+  return new Date(copy.getFullYear(), copy.getMonth(), copy.getDate());
+}
+function addWeeks(d, n){
+  const copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  copy.setDate(copy.getDate() + n*7);
+  return copy;
+}
+function clampWeekToAcademic(d){
+  // ensure weekStartDate is within academic range (from Aug 1 academicStartYear to Jul 31 academicStartYear+1)
+  const start = new Date(academicStartYear, 7, 1); // Aug 1
+  const end = new Date(academicStartYear + 1, 6, 31); // Jul 31
+  if(d < start) return new Date(start);
+  if(d > end) return new Date(end); // could adjust to last week start, but ok
+  return d;
+}
+function formatRangeLabel(start, end){
+  const s = start.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+  const e = end.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+  return `${s} — ${e}`;
+}
+
+/* DOM refs */
+const monthViewBtn = document.getElementById('monthViewBtn');
+const weekViewBtn = document.getElementById('weekViewBtn');
+const listViewBtn = document.getElementById('listViewBtn');
+
+const periodLabel = document.getElementById('periodLabel');
+const subLabel = document.getElementById('subLabel');
+const calendarGrid = document.getElementById('calendarGrid');
+const titleTop = document.getElementById('titleTop');
+const monthPager = document.getElementById('monthPager');
+const prevBottom = document.getElementById('prevBottom');
+const nextBottom = document.getElementById('nextBottom');
+
+const prevTop = document.getElementById('prev');
+const nextTop = document.getElementById('next');
+
+const monthArea = document.getElementById('monthArea');
+const weekArea = document.getElementById('weekArea');
+const listArea = document.getElementById('listArea');
+
+const weekGrid = document.getElementById('weekGrid');
+const weekLabel = document.getElementById('weekLabel');
+const prevWeek = document.getElementById('prevWeek');
+const nextWeek = document.getElementById('nextWeek');
+
+const legend = document.getElementById('legend');
+const colorFilter = document.getElementById('colorFilter');
+const listContent = document.getElementById('listContent');
+const pagerLabel = document.getElementById('pagerLabel');
+const monthNav = document.getElementById('monthNav');
+
+/* Helper for CSS class from color */
+function colorClassName(c){ return 'c-' + (c || '').trim().replace(/\s+/g,'-'); }
+
+/* Render functions */
+function render(){
+  if(currentView === 'month'){
+    renderMonth();
+    monthArea.style.display = '';
+    weekArea.style.display = 'none';
+    listArea.style.display = 'none';
+    legend.style.display = 'none';
+    monthViewBtn.classList.add('active'); monthViewBtn.setAttribute('aria-selected','true');
+    weekViewBtn.classList.remove('active'); weekViewBtn.setAttribute('aria-selected','false');
+    listViewBtn.classList.remove('active'); listViewBtn.setAttribute('aria-selected','false');
+    titleTop.textContent = '';
+    monthNav.style.display = ''; // Show navigation in month view
+    // Remove clickable and selected from all days in month view
+    setTimeout(() => {
+      document.querySelectorAll('.day').forEach(cell => {
+        cell.classList.remove('clickable', 'selected');
+        cell.style.cursor = 'default';
+        cell.onclick = null;
+      });
+    }, 0);
+  } else if(currentView === 'week'){
+    renderWeek();
+    monthArea.style.display = 'none';
+    weekArea.style.display = '';
+    listArea.style.display = 'none';
+    legend.style.display = 'none';
+    monthViewBtn.classList.remove('active'); monthViewBtn.setAttribute('aria-selected','false');
+    weekViewBtn.classList.add('active'); weekViewBtn.setAttribute('aria-selected','true');
+    listViewBtn.classList.remove('active'); listViewBtn.setAttribute('aria-selected','false');
+    subLabel.textContent = '';
+    titleTop.textContent = '';
+    monthNav.style.display = ''; // Show navigation in week view
+  } else {
+    renderList();
+    monthArea.style.display = 'none';
+    weekArea.style.display = 'none';
+    listArea.style.display = '';
+    legend.style.display = '';
+    monthViewBtn.classList.remove('active'); monthViewBtn.setAttribute('aria-selected','false');
+    weekViewBtn.classList.remove('active'); weekViewBtn.setAttribute('aria-selected','false');
+    listViewBtn.classList.add('active'); listViewBtn.setAttribute('aria-selected','true');
+    monthNav.style.display = 'none'; // Hide navigation in list view
+  }
+}
+
+/* Month render: full 7x6 grid for months[monthIndex] */
+function renderMonth(){
+  calendarGrid.innerHTML = '';
+  const mobj = months[monthIndex];
+  const year = mobj.year, month = mobj.month;
+  const firstOfMonth = new Date(year, month, 1);
+  const startDay = firstOfMonth.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevMonthLastDate = new Date(year, month, 0).getDate();
+  titleTop.textContent = firstOfMonth.toLocaleString(undefined,{month:'long', year:'numeric'});
+  periodLabel.textContent = firstOfMonth.toLocaleString(undefined,{month:'long', year:'numeric'});
+  subLabel.textContent = '';
+
+  for(let i=0;i<42;i++){
+    const cell = document.createElement('div');
+    cell.className = 'day';
+    // No clickable class in month view
+    const idx = i - startDay + 1;
+    let cellDate;
+    if(idx <= 0){
+      cellDate = new Date(year, month -1, prevMonthLastDate + idx);
+      cell.classList.add('dim');
+    } else if(idx > daysInMonth){
+      cellDate = new Date(year, month +1, idx - daysInMonth);
+      cell.classList.add('dim');
+    } else {
+      cellDate = new Date(year, month, idx);
+    }
+
+    const dateRow = document.createElement('div');
+    dateRow.className = 'date-row';
+    const dn = document.createElement('div');
+    dn.className = 'date-num';
+    dn.textContent = String(cellDate.getDate()).padStart(2,'0');
+    dateRow.appendChild(dn);
+
+    const key = cellDate.toISOString().slice(0,10);
+    const dayEvents = eventMap.get(key) || [];
+
+    const eventsWrap = document.createElement('div');
+    eventsWrap.className = 'events';
+    dayEvents.slice(0,3).forEach(ev=>{
+      const pill = document.createElement('div');
+      pill.className = 'event-pill ' + colorClassName(ev.Color);
+      pill.textContent = ev.Description;
+      eventsWrap.appendChild(pill);
+    });
+    if(dayEvents.length > 3){
+      const more = document.createElement('div');
+      more.className = 'small';
+      more.textContent = `+${dayEvents.length - 3} more`;
+      more.style.marginTop='4px';
+      more.style.color='var(--muted)';
+      eventsWrap.appendChild(more);
+    }
+
+    cell.appendChild(dateRow);
+    cell.appendChild(eventsWrap);
+
+    // No click handler, no highlight in month view
+
+    calendarGrid.appendChild(cell);
+  }
+
+  prevTop.disabled = prevBottom.disabled = (monthIndex === 0);
+  nextTop.disabled = nextBottom.disabled = (monthIndex === months.length - 1);
+
+  pagerLabel.textContent = `${monthIndex + 1} / ${months.length}`;
+}
+
+/* Week render: show week starting at weekStartDate */
+function renderWeek(){
+  weekGrid.innerHTML = '';
+  // clamp weekStartDate to academic range
+  weekStartDate = clampWeekToAcademic(weekStartDate);
+  const weekEnd = addDays(weekStartDate,6);
+  periodLabel.textContent = formatRangeLabel(weekStartDate, weekEnd);
+  // Remove month-year in top left in week view
+  titleTop.textContent = '';
+
+  // generate 7 days
+  let d = new Date(weekStartDate);
+  for(let i=0;i<7;i++){
+    const wd = document.createElement('div');
+    wd.className = 'week-day';
+    const dn = document.createElement('div');
+    dn.className = 'date-num';
+    dn.textContent = d.toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'});
+    wd.appendChild(dn);
+
+    const key = d.toISOString().slice(0,10);
+    const dayEvents = eventMap.get(key) || [];
+
+    dayEvents.forEach(ev=>{
+      const pill = document.createElement('div');
+      pill.className = 'event-pill ' + colorClassName(ev.Color);
+      pill.style.marginTop = '6px';
+      pill.textContent = ev.Description;
+      wd.appendChild(pill);
+    });
+
+    weekGrid.appendChild(wd);
+    d = addDays(d,1);
+  }
+
+  // week pager hard stops: compute first and last possible week starts within academic year
+  const academicStart = new Date(academicStartYear,7,1);
+  const academicEnd = new Date(academicStartYear + 1,6,31);
+  const firstWeekStart = startOfWeek(academicStart);
+  const lastWeekStart = startOfWeek(academicEnd);
+
+  prevWeek.disabled = weekStartDate <= firstWeekStart;
+  nextWeek.disabled = weekStartDate >= lastWeekStart;
+
+  // subLabel (show week counts)
+  // subLabel.textContent = `Week of ${weekStartDate.toLocaleDateString()}`; // removed
+}
+
+/* List render: full year grouped by months with color filter */
+let listFilter = "All";
+
+function renderList(){
+  listContent.innerHTML = '';
+  periodLabel.textContent = '';
+  titleTop.textContent = '';
+  subLabel.textContent = '';
+
+  // Filter events by selected color
+  const allEntries = [];
+  eventMap.forEach((arr) => {
+    arr.forEach(ev => {
+      if (listFilter === "All" || ev.Color === listFilter) {
+        allEntries.push(ev);
+      }
+    });
+  });
+  allEntries.sort((a, b) => a._date - b._date);
+
+  if (allEntries.length === 0) {
+    const none = document.createElement('div');
+    none.className = 'small';
+    none.style.color = 'var(--muted)';
+    none.textContent = 'No events';
+    listContent.appendChild(none);
+  } else {
+    allEntries.forEach(ev => {
+      const row = document.createElement('div');
+      row.className = 'event-row c-' + ev.Color; // Color the row by event color
+      const left = document.createElement('div');
+      left.style.display = 'flex';
+      left.style.gap = '12px';
+      left.style.alignItems = 'center';
+      const date = document.createElement('div');
+      date.style.minWidth = '86px';
+      date.style.fontWeight = '700';
+      date.textContent = ev._date.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+      const desc = document.createElement('div');
+      desc.textContent = ev.Description;
+      left.appendChild(date);
+      left.appendChild(desc);
+
+      row.appendChild(left);
+      // No badge on the right
+
+      listContent.appendChild(row);
+    });
+  }
+}
+
+// Legend click: sets color filter; in list view it applies immediately; highlight active item
+document.addEventListener('DOMContentLoaded', function() {
+  const legend = document.getElementById('legend');
+  if (legend) {
+    legend.addEventListener('click', (e) => {
+      const item = e.target.closest('.item');
+      if (!item) return;
+      const color = item.getAttribute('data-color') || 'All';
+      // visually mark active legend item
+      legend.querySelectorAll('.item').forEach(it => it.classList.remove('active'));
+      item.classList.add('active');
+      // set filter and re-render list
+      listFilter = color;
+      if (currentView === 'list') renderList();
+    });
+    // Set "All" as active by default
+    legend.querySelectorAll('.item').forEach(it => {
+      it.classList.toggle('active', it.getAttribute('data-color') === 'All');
+    });
+  }
+});
+
+/* small util: addDays */
+function addDays(d, n){ const c = new Date(d.getFullYear(), d.getMonth(), d.getDate()); c.setDate(c.getDate() + n); return c; }
+
+/* Event wiring */
+/* Toggle views */
+monthViewBtn.addEventListener('click', ()=> { currentView = 'month'; render(); });
+weekViewBtn.addEventListener('click', ()=> { currentView = 'week'; render(); });
+listViewBtn.addEventListener('click', ()=> { currentView = 'list'; render(); });
+
+/* Month navigation */
+prevTop.addEventListener('click', ()=> { if(monthIndex > 0){ monthIndex--; render(); }});
+nextTop.addEventListener('click', ()=> { if(monthIndex < months.length - 1){ monthIndex++; render(); }});
+prevBottom.addEventListener('click', ()=> { if(monthIndex > 0){ monthIndex--; render(); }});
+nextBottom.addEventListener('click', ()=> { if(monthIndex < months.length - 1){ monthIndex++; render(); }});
+
+/* Week navigation */
+prevWeek.addEventListener('click', ()=> { weekStartDate = startOfWeek(addDays(weekStartDate, -7)); weekStartDate = clampWeekToAcademic(weekStartDate); render(); });
+nextWeek.addEventListener('click', ()=> { weekStartDate = startOfWeek(addDays(weekStartDate, 7)); weekStartDate = clampWeekToAcademic(weekStartDate); render(); });
+// Fix: also wire top pager buttons for week view
+prevTop.addEventListener('click', ()=> {
+  if(currentView === 'month') {
+    if(monthIndex > 0){ monthIndex--; render(); }
+  } else if(currentView === 'week') {
+    weekStartDate = startOfWeek(addDays(weekStartDate, -7));
+    weekStartDate = clampWeekToAcademic(weekStartDate);
+    render();
+  }
+});
+nextTop.addEventListener('click', ()=> {
+  if(currentView === 'month') {
+    if(monthIndex < months.length - 1){ monthIndex++; render(); }
+  } else if(currentView === 'week') {
+    weekStartDate = startOfWeek(addDays(weekStartDate, 7));
+    weekStartDate = clampWeekToAcademic(weekStartDate);
+    render();
+  }
+});
+/* Legend click: sets color filter; in list view it applies immediately; highlight active item */
+legend.addEventListener('click', (e)=>{
+  const item = e.target.closest('.item');
+  if(!item) return;
+  const color = item.getAttribute('data-color') || 'All';
+  // visually mark active legend item
+  document.querySelectorAll('#legend .item').forEach(it => it.classList.remove('active'));
+  item.classList.add('active');
+  // set filter
+  if(colorFilter){
+    colorFilter.value = color;
+  }
+  if(currentView === 'list') renderList();
+});
+
+/* Color filter change in list view */
+if(colorFilter){
+  colorFilter.addEventListener('change', ()=> {
+    // highlight corresponding legend item
+    const val = colorFilter.value;
+    document.querySelectorAll('#legend .item').forEach(it => {
+      it.classList.toggle('active', it.getAttribute('data-color') === val);
+    });
+    renderList();
+  });
+}
+
+/* Keyboard navigation specific to view */
+document.addEventListener('keydown', (e)=>{
+  if(currentView === 'month'){
+    if(e.key === 'ArrowLeft') { if(monthIndex > 0) { monthIndex--; render(); } }
+    if(e.key === 'ArrowRight') { if(monthIndex < months.length - 1) { monthIndex++; render(); } }
+  } else if(currentView === 'week'){
+    if(e.key === 'ArrowLeft') { weekStartDate = startOfWeek(addDays(weekStartDate,-7)); weekStartDate = clampWeekToAcademic(weekStartDate); render(); }
+    if(e.key === 'ArrowRight') { weekStartDate = startOfWeek(addDays(weekStartDate, 7)); weekStartDate = clampWeekToAcademic(weekStartDate); render(); }
+  }
+});
+
+/* Initialize: start in Month view for current month */
+(function init(){
+  currentView = 'month';
+  // ensure monthIndex is set to current month (done earlier)
+  render();
+})();
+
+// Make "All" selected by default in legend and select
+(function setDefaultAllFilter() {
+  // Set "All" as selected in the select dropdown
+  if (colorFilter) colorFilter.value = "All";
+  // Set "All" as active in the legend
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('#legend .item').forEach(it => {
+      it.classList.toggle('active', it.getAttribute('data-color') === 'All');
+    });
+  });
+  // Also set immediately in case DOMContentLoaded already fired
+  document.querySelectorAll('#legend .item').forEach(it => {
+    it.classList.toggle('active', it.getAttribute('data-color') === 'All');
+  });
+})();
+							</script>
+</body>
+</html>
