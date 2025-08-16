@@ -321,6 +321,52 @@
     .small {
       font-size: 11px;
     }
+    .day.expanded {
+      position: absolute;
+      z-index: 100;
+      width: 90vw;
+      min-width: 0;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      min-height: unset;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 18px 12px 18px 12px;
+      border-radius: 16px;
+      border: 2px solid var(--accent-2);
+      font-size: 15px;
+      transition: box-shadow 0.2s;
+    }
+    .day.expanded .event-pill {
+      font-size: 14px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      margin-bottom: 4px;
+    }
+    .day.expanded .date-row {
+      margin-bottom: 12px;
+    }
+    .day.expanded .close-btn {
+      display: block;
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 101;
+    }
+    /* Prevent background scroll when expanded */
+    body.expanded-day-open {
+      overflow: hidden;
+      touch-action: none;
+    }
   }
 
   /* Toggle Switch Styles */
@@ -876,9 +922,10 @@ function renderList(){
       left.style.gap = '12px';
       left.style.alignItems = 'center';
       const date = document.createElement('div');
-      date.style.minWidth = '86px';
+      date.style.minWidth = '110px';
       date.style.fontWeight = '700';
-      date.textContent = ev._date.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+      // Show day of week, e.g. "Thu Sep 25"
+      date.textContent = ev._date.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
       const desc = document.createElement('div');
       desc.textContent = ev.Description;
       left.appendChild(date);
@@ -926,9 +973,12 @@ listViewBtn.addEventListener('click', ()=> { currentView = 'list'; render(); });
 /* Month navigation */
 prevTop.addEventListener('click', ()=> { if(monthIndex > 0){ monthIndex--; render(); }});
 nextTop.addEventListener('click', ()=> { if(monthIndex < months.length - 1){ monthIndex++; render(); }});
-prevBottom.addEventListener('click', ()=> { if(monthIndex > 0){ monthIndex--; render(); }});
-nextBottom.addEventListener('click', ()=> { if(monthIndex < months.length - 1){ monthIndex++; render(); }});
-
+prevBottom.addEventListener('click', ()=> {
+  if(currentView === 'month' && monthIndex > 0){ monthIndex--; render(); }
+});
+nextBottom.addEventListener('click', ()=> {
+  if(currentView === 'month' && monthIndex < months.length - 1){ monthIndex++; render(); }
+});
 /* Week navigation */
 prevWeek.addEventListener('click', ()=> { weekStartDate = startOfWeek(addDays(weekStartDate, -7)); weekStartDate = clampWeekToAcademic(weekStartDate); render(); });
 nextWeek.addEventListener('click', ()=> { weekStartDate = startOfWeek(addDays(weekStartDate, 7)); weekStartDate = clampWeekToAcademic(weekStartDate); render(); });
@@ -1011,6 +1061,153 @@ document.addEventListener('keydown', (e)=>{
     it.classList.toggle('active', it.getAttribute('data-color') === 'All');
   });
 })();
-							</script>
+
+// Add click-to-expand for month view on mobile
+function enableMonthDayExpand() {
+  // Remove any previous handlers
+  calendarGrid.querySelectorAll('.day').forEach(cell => {
+    cell.onclick = null;
+    cell.classList.remove('clickable');
+  });
+
+  // Only enable on mobile
+  if (window.innerWidth > 700) return;
+
+  calendarGrid.querySelectorAll('.day').forEach(cell => {
+    cell.classList.add('clickable');
+    cell.onclick = function(e) {
+      // Prevent multiple expanded
+      document.querySelectorAll('.day.expanded').forEach(exp => {
+        exp.classList.remove('expanded');
+        if (exp.querySelector('.close-btn')) exp.querySelector('.close-btn').remove();
+      });
+      // Expand this cell
+      cell.classList.add('expanded');
+      document.body.classList.add('expanded-day-open');
+      // Add close button
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'close-btn';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.onclick = function(ev) {
+        ev.stopPropagation();
+        cell.classList.remove('expanded');
+        document.body.classList.remove('expanded-day-open');
+        closeBtn.remove();
+      };
+      cell.appendChild(closeBtn);
+      // Clicking outside the expanded cell closes it
+      setTimeout(() => {
+        function outsideClick(ev) {
+          if (!cell.contains(ev.target)) {
+            cell.classList.remove('expanded');
+            document.body.classList.remove('expanded-day-open');
+            closeBtn.remove();
+            document.removeEventListener('mousedown', outsideClick, true);
+            document.removeEventListener('touchstart', outsideClick, true);
+          }
+        }
+        document.addEventListener('mousedown', outsideClick, true);
+        document.addEventListener('touchstart', outsideClick, true);
+      }, 0);
+    };
+  });
+}
+
+// Patch renderMonth to enable expand on mobile
+const origRenderMonth = renderMonth;
+renderMonth = function() {
+  origRenderMonth();
+  setTimeout(enableMonthDayExpand, 0);
+};
+
+// Remove duplicate event listeners for prevTop/nextTop/prevBottom/nextBottom
+// and ensure only one handler per button for month navigation
+
+// Remove any previous conflicting listeners if present
+// (Do this only once, not on every render)
+if (!window._monthNavPatched) {
+  prevTop.replaceWith(prevTop.cloneNode(true));
+  nextTop.replaceWith(nextTop.cloneNode(true));
+  prevBottom.replaceWith(prevBottom.cloneNode(true));
+  nextBottom.replaceWith(nextBottom.cloneNode(true));
+
+  // Re-acquire references after replaceWith
+  window.prevTopBtn = document.getElementById('prev');
+  window.nextTopBtn = document.getElementById('next');
+  window.prevBottomBtn = document.getElementById('prevBottom');
+  window.nextBottomBtn = document.getElementById('nextBottom');
+
+  // Month navigation: only increment/decrement by 1
+  window.prevTopBtn.addEventListener('click', ()=> {
+    if(currentView === 'month' && monthIndex > 0){ monthIndex--; render(); }
+    else if(currentView === 'week') {
+      // Always allow previous week unless at academic start
+      const academicStart = new Date(academicStartYear,7,1);
+      const firstWeekStart = startOfWeek(academicStart);
+      if(weekStartDate > firstWeekStart) {
+        weekStartDate = startOfWeek(addDays(weekStartDate, -7));
+        weekStartDate = clampWeekToAcademic(weekStartDate);
+        render();
+      }
+    }
+  });
+  window.nextTopBtn.addEventListener('click', ()=> {
+    if(currentView === 'month' && monthIndex < months.length - 1){ monthIndex++; render(); }
+    else if(currentView === 'week') {
+      // Always allow next week unless at academic end
+      const academicEnd = new Date(academicStartYear + 1,6,31);
+      const lastWeekStart = startOfWeek(academicEnd);
+      if(weekStartDate < lastWeekStart) {
+        weekStartDate = startOfWeek(addDays(weekStartDate, 7));
+        weekStartDate = clampWeekToAcademic(weekStartDate);
+        render();
+      }
+    }
+  });
+  window.prevBottomBtn.addEventListener('click', ()=> {
+    if(currentView === 'month' && monthIndex > 0){ monthIndex--; render(); }
+  });
+  window.nextBottomBtn.addEventListener('click', ()=> {
+    if(currentView === 'month' && monthIndex < months.length - 1){ monthIndex++; render(); }
+  });
+
+  window._monthNavPatched = true;
+}
+
+// --- Fix disabling logic for prev/next buttons ---
+function updateMonthWeekNavDisabled() {
+  // Month view
+  if (currentView === 'month') {
+    window.prevTopBtn.disabled = window.prevBottomBtn.disabled = (monthIndex === 0);
+    window.nextTopBtn.disabled = window.nextBottomBtn.disabled = (monthIndex === months.length - 1);
+  }
+  // Week view
+  else if (currentView === 'week') {
+    const academicStart = new Date(academicStartYear,7,1);
+    const academicEnd = new Date(academicStartYear + 1,6,31);
+    const firstWeekStart = startOfWeek(academicStart);
+    const lastWeekStart = startOfWeek(academicEnd);
+    window.prevTopBtn.disabled = (weekStartDate <= firstWeekStart);
+    window.nextTopBtn.disabled = (weekStartDate >= lastWeekStart);
+    // Hide bottom pager in week view
+    window.prevBottomBtn.disabled = true;
+    window.nextBottomBtn.disabled = true;
+  }
+  // List view: all enabled
+  else {
+    window.prevTopBtn.disabled = false;
+    window.nextTopBtn.disabled = false;
+    window.prevBottomBtn.disabled = false;
+    window.nextBottomBtn.disabled = false;
+  }
+}
+
+// Patch render to update button disabled state after rendering
+const origRender = render;
+render = function() {
+  origRender();
+  updateMonthWeekNavDisabled();
+};
+</script>
 </body>
 </html>
