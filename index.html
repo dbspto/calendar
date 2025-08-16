@@ -280,6 +280,49 @@
     .week-grid { flex-direction:column; }
   }
 
+  /* --- IMPROVED MONTH VIEW FOR MOBILE --- */
+  @media (max-width:700px) {
+    .calendar-header, .month-nav, .pager {
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .month-title, #periodLabel {
+      font-size: 16px;
+    }
+    .grid {
+      gap: 4px;
+    }
+    .day {
+      min-height: 48px;
+      padding: 4px;
+      font-size: 13px;
+    }
+    .date-row {
+      margin-bottom: 2px;
+    }
+    .date-num {
+      font-size: 12px;
+      padding: 3px 6px;
+      border-radius: 6px;
+    }
+    .events {
+      gap: 2px;
+    }
+    .event-pill {
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      max-width: 100%;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+    .small {
+      font-size: 11px;
+    }
+  }
+
   /* Toggle Switch Styles */
   .theme-switch {
     display: inline-flex;
@@ -324,11 +367,11 @@
     text-align: center;
   }
 
-.event-row.c-Green  { background: linear-gradient(90deg,#7ef9a2,#4ad58a); color: #fff !important; }
-.event-row.c-Red    { background: linear-gradient(90deg,#ff8b94,#ff5d6c); color: #fff !important; }
-.event-row.c-Yellow { background: linear-gradient(90deg,#ffe38a,#ffd14a); color: #fff !important; }
-.event-row.c-Purple { background: linear-gradient(90deg,#cda3ff,#9b6bff); color: #fff !important; }
-.event-row.c-Blue   { background: linear-gradient(90deg,#add8e6,#87ceeb); color: #fff !important; }
+.event-row.c-Green  { background: linear-gradient(90deg,#7ef9a2,#4ad58a); color: #000 !important; font-weight: bold; }
+.event-row.c-Red    { background: linear-gradient(90deg,#ff8b94,#ff5d6c); color: #000 !important; font-weight: bold; }
+.event-row.c-Yellow { background: linear-gradient(90deg,#ffe38a,#ffd14a); color: #000 !important; font-weight: bold; }
+.event-row.c-Purple { background: linear-gradient(90deg,#cda3ff,#9b6bff); color: #000 !important; font-weight: bold; }
+.event-row.c-Blue   { background: linear-gradient(90deg,#add8e6,#87ceeb); color: #000 !important; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -421,16 +464,7 @@
 
       <!-- List view -->
       <div id="listArea" style="display:none; margin-top:12px;">
-        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; justify-content:flex-end;">
-          <div class="legend" id="legend" role="toolbar" aria-label="Color filters">
-            <div class="item" data-color="All"><div class="swatch" style="background:linear-gradient(90deg,#7ef9a2,#4ad58a)"></div>All</div>
-            <div class="item" data-color="Green"><div class="swatch c-Green"></div>Green</div>
-            <div class="item" data-color="Red"><div class="swatch c-Red"></div>Red</div>
-            <div class="item" data-color="Yellow"><div class="swatch c-Yellow"></div>Yellow</div>
-            <div class="item" data-color="Purple"><div class="swatch c-Purple"></div>Purple</div>
-            <div class="item" data-color="Blue"><div class="swatch c-Blue"></div>Blue</div>
-          </div>
-        </div>
+        <!-- Remove the legend/filter buttons above the rows -->
         <div id="listContent"></div>
       </div>
     </main>
@@ -836,7 +870,7 @@ function renderList(){
   } else {
     allEntries.forEach(ev => {
       const row = document.createElement('div');
-      row.className = 'event-row c-' + ev.Color; // Color the row by event color
+      row.className = 'event-row c-' + ev.Color;
       const left = document.createElement('div');
       left.style.display = 'flex';
       left.style.gap = '12px';
