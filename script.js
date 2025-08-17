@@ -544,7 +544,11 @@ render = function() {
 
 /* Initialize: start in Month view for current month */
 (function init(){
-  currentView = 'month';
+  if (window.innerWidth > 700) {
+    currentView = 'month';
+  } else {
+    currentView = 'list'; // Default to week on mobile
+  }
   // ensure monthIndex is set to current month (done earlier)
   render();
 })();
