@@ -1,5 +1,5 @@
 const today = new Date();
-const academicStartYear = '2025';
+const academicStartYear = 2025;
 let weekStartDate = startOfWeek(new Date()); // default to current week (Sunday)
 
 // const academicStartYear = (today.getMonth() + 1) >= 8 ? today.getFullYear() : today.getFullYear() - 1;
@@ -226,7 +226,7 @@ function renderList(){
       date.style.minWidth = '110px';
       date.style.fontWeight = '700';
       // Show day of week, e.g. "Thu Sep 25"
-      date.textContent = ev._date.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+      date.textContent = ev._date.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric', year:'numeric'});
       const desc = document.createElement('div');
       desc.textContent = ev.Description;
       left.appendChild(date);
