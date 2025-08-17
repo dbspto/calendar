@@ -102,6 +102,7 @@ function renderMonth(){
       cellDate = new Date(year, month, idx);
     }
 
+
     const dateRow = document.createElement('div');
     dateRow.className = 'date-row';
     const dn = document.createElement('div');
@@ -111,6 +112,7 @@ function renderMonth(){
 
     const key = cellDate.toISOString().slice(0,10);
     const dayEvents = eventMap.get(key) || [];
+    cell.setAttribute('data-date', key);
 
     const eventsWrap = document.createElement('div');
     eventsWrap.className = 'events';
@@ -118,6 +120,7 @@ function renderMonth(){
       const pill = document.createElement('div');
       pill.className = 'event-pill ' + colorClassName(ev.Color);
       pill.textContent = ev.Description;
+      pill.setAttribute('data-date', key);
       eventsWrap.appendChild(pill);
     });
     if(dayEvents.length > 3){
@@ -406,11 +409,7 @@ function enableMonthDayExpand() {
 
 function enableMonthEventExpand() {
   if (window.innerWidth > 700) return;
-
-  // Remove any previous handlers
-  document.querySelectorAll('.event-pill').forEach(pill => {
-    pill.onclick = null;
-  });
+  document.querySelectorAll('.event-pill').forEach(pill => pill.onclick = null);
 
   document.querySelectorAll('#calendarGrid .event-pill').forEach(pill => {
     pill.onclick = function(e) {
@@ -419,34 +418,67 @@ function enableMonthEventExpand() {
       if (pill.classList.contains('expanded-mobile')) {
         pill.classList.remove('expanded-mobile');
         document.body.classList.remove('event-pill-expanded');
+        // remove date label if you want (optional)
+        // const lbl = pill.querySelector('.date-label'); if (lbl) lbl.remove();
         return;
       }
 
-      // Close any other expanded pills
+      // Close others
       document.querySelectorAll('.event-pill.expanded-mobile').forEach(exp => {
         exp.classList.remove('expanded-mobile');
       });
+
+      // Insert date label if available and not present
+      if (!pill.querySelector('.date-label')) {
+        const dateStr = pill.getAttribute('data-date') || pill.closest('.day')?.getAttribute('data-date');
+        if (dateStr) {
+          const d = new Date(dateStr);
+          if (!isNaN(d)) {
+            const label = document.createElement('span');
+            label.className = 'date-label';
+            label.textContent = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); // "Jun 13"
+            pill.insertBefore(label, pill.firstChild);
+          }
+        }
+      }
+
+      // Insert date label if available and not present
+      if (!pill.querySelector('.date-label')) {
+        // Try pill data-date, then the enclosing day cell's data-date (recommended to render day cells with data-date="YYYY-MM-DD")
+        const dateStr = pill.getAttribute('data-date') || pill.closest('.day')?.getAttribute('data-date');
+        if (dateStr) {
+          const d = new Date(dateStr);
+          if (!isNaN(d)) {
+            // Use a locale-aware short month name + day number, e.g. "Jun 13".
+            // If you want English regardless of locale, pass 'en-US' as first arg.
+            const labelText = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            const label = document.createElement('span');
+            label.className = 'date-label';
+            label.textContent = labelText;
+            // style can be overridden in CSS; inserting before text so it shows first
+            pill.insertBefore(label, pill.firstChild);
+          }
+        }
+      }
 
       // Expand this pill
       pill.classList.add('expanded-mobile');
       document.body.classList.add('event-pill-expanded');
 
       function closeOnClick(ev) {
-        // close when clicking outside the pill
         if (!pill.contains(ev.target)) {
           pill.classList.remove('expanded-mobile');
           document.body.classList.remove('event-pill-expanded');
           document.removeEventListener('click', closeOnClick, true);
         }
       }
-
-      // Defer adding the document listener so this initial click doesn't immediately trigger it
       setTimeout(() => {
         document.addEventListener('click', closeOnClick, true);
       }, 0);
     };
   });
 }
+
 // Patch renderMonth to enable expand on mobile
 const origRenderMonth = renderMonth;
 renderMonth = function() {

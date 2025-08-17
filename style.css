@@ -532,3 +532,14 @@ main.card {
   .theme-switch-mobile { display: inline-flex !important; }
   .theme-switch-desktop { display: none !important; }
 }
+
+.event-pill .date-label {
+  font-weight: 600;
+  margin-right: 8px;
+  font-size: 0.9em;
+  color: #ffffff;
+}
+.event-pill.expanded-mobile .date-label {
+  display: inline-block;
+  color: #ffffff;
+}
