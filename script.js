@@ -226,7 +226,7 @@ function renderList(){
       date.style.minWidth = '110px';
       date.style.fontWeight = '700';
       // Show day of week, e.g. "Thu Sep 25"
-      date.textContent = ev._date.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+      date.textContent = ev._date.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
       const desc = document.createElement('div');
       desc.textContent = ev.Description;
       left.appendChild(date);
@@ -404,9 +404,7 @@ function enableMonthDayExpand() {
   });
 }
 
-// Add click-to-expand for event pills in month view on mobile
 function enableMonthEventExpand() {
-  // Only enable on mobile
   if (window.innerWidth > 700) return;
 
   // Remove any previous handlers
@@ -417,34 +415,38 @@ function enableMonthEventExpand() {
   document.querySelectorAll('#calendarGrid .event-pill').forEach(pill => {
     pill.onclick = function(e) {
       e.stopPropagation();
-      // If already expanded, remove
+
       if (pill.classList.contains('expanded-mobile')) {
         pill.classList.remove('expanded-mobile');
         document.body.classList.remove('event-pill-expanded');
         return;
       }
-      // Remove any other expanded pills
+
+      // Close any other expanded pills
       document.querySelectorAll('.event-pill.expanded-mobile').forEach(exp => {
         exp.classList.remove('expanded-mobile');
       });
+
       // Expand this pill
       pill.classList.add('expanded-mobile');
       document.body.classList.add('event-pill-expanded');
-      // Clicking the overlay again closes it
+
       function closeOnClick(ev) {
-        if (ev.target === pill) {
+        // close when clicking outside the pill
+        if (!pill.contains(ev.target)) {
           pill.classList.remove('expanded-mobile');
           document.body.classList.remove('event-pill-expanded');
           document.removeEventListener('click', closeOnClick, true);
         }
       }
+
+      // Defer adding the document listener so this initial click doesn't immediately trigger it
       setTimeout(() => {
         document.addEventListener('click', closeOnClick, true);
       }, 0);
     };
   });
 }
-
 // Patch renderMonth to enable expand on mobile
 const origRenderMonth = renderMonth;
 renderMonth = function() {
