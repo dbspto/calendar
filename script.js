@@ -194,16 +194,28 @@ function renderWeek(){
 
 /* List render: full year grouped by months with color filter */
 let listFilter = "All";
+let showPreviousEvents = false;
 
 function renderList(){
   listContent.innerHTML = '';
   periodLabel.textContent = '';
   subLabel.textContent = '';
 
-  // Filter events by selected color
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0); // Set to start of today for comparison
+
+  // Filter events by selected color and date
   const allEntries = [];
   eventMap.forEach((arr) => {
     arr.forEach(ev => {
+      const eventDate = new Date(ev._date);
+      eventDate.setHours(0, 0, 0, 0);
+
+      // Skip past events if showPreviousEvents is false
+      if (!showPreviousEvents && eventDate < currentDate) {
+        return;
+      }
+
       if (listFilter === "All" || ev.Color === listFilter) {
         allEntries.push(ev);
       }
@@ -215,12 +227,20 @@ function renderList(){
     const none = document.createElement('div');
     none.className = 'small';
     none.style.color = 'var(--muted)';
-    none.textContent = 'No events';
+    none.textContent = showPreviousEvents ? 'No events' : 'No upcoming events';
     listContent.appendChild(none);
   } else {
     allEntries.forEach(ev => {
       const row = document.createElement('div');
       row.className = 'event-row c-' + ev.Color;
+
+      // Add opacity for past events when showing them
+      const eventDate = new Date(ev._date);
+      eventDate.setHours(0, 0, 0, 0);
+      if (eventDate < currentDate) {
+        row.style.opacity = '0.6';
+      }
+
       const left = document.createElement('div');
       left.style.display = 'flex';
       left.style.gap = '12px';
@@ -586,3 +606,70 @@ render = function() {
   // ensure monthIndex is set to current month (done earlier)
   render();
 })();
+
+// Theme slider toggle functionality
+const themeToggleSlider = document.getElementById('themeToggleSlider');
+const themeToggleIcon = document.getElementById('themeToggleIcon');
+const themeToggleIconLight = document.getElementById('themeToggleIconLight');
+
+// Check for saved theme preference or default to dark
+const savedTheme = localStorage.getItem('theme') || 'dark';
+const isDarkTheme = savedTheme === 'dark';
+
+// Apply initial theme
+if (!isDarkTheme) {
+  document.documentElement.classList.add('light-theme');
+  themeToggleSlider.checked = true;
+}
+
+// Update icon visibility based on theme
+function updateThemeIcons(isLight) {
+  if (themeToggleIcon && themeToggleIconLight) {
+    themeToggleIcon.style.opacity = isLight ? '0.4' : '1';
+    themeToggleIconLight.style.opacity = isLight ? '1' : '0.4';
+  }
+}
+
+// Set initial icon state
+updateThemeIcons(!isDarkTheme);
+
+if (themeToggleSlider) {
+  themeToggleSlider.addEventListener('change', function() {
+    const isLightMode = this.checked;
+
+    if (isLightMode) {
+      document.documentElement.classList.add('light-theme');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light-theme');
+      localStorage.setItem('theme', 'dark');
+    }
+
+    // Update icon visibility
+    updateThemeIcons(isLightMode);
+  });
+}
+
+// Previous events toggle functionality
+const showPreviousBtn = document.getElementById('showPreviousBtn');
+const previousEventsIcon = document.getElementById('previousEventsIcon');
+
+if (showPreviousBtn) {
+  showPreviousBtn.addEventListener('click', function() {
+    showPreviousEvents = !showPreviousEvents;
+
+    // Update button appearance
+    if (showPreviousEvents) {
+      showPreviousBtn.classList.add('active');
+      showPreviousBtn.innerHTML = '<span id="previousEventsIcon">🙈</span> Hide Previous';
+    } else {
+      showPreviousBtn.classList.remove('active');
+      showPreviousBtn.innerHTML = '<span id="previousEventsIcon">👁️</span> Show Previous';
+    }
+
+    // Re-render list view if currently active
+    if (currentView === 'list') {
+      renderList();
+    }
+  });
+}
