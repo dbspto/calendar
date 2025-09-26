@@ -1,3 +1,4 @@
+const yamlString = `
 Calendar:
   - Color: Green
     - Name: First Day of School
@@ -9,7 +10,7 @@ Calendar:
     - Name: Dance (Light up the night)
       Date: 2025-10-24
     - Name: Unity Day
-      Date: 2025-10-30
+      Date: 2025-10-31
     - Name: Picture Retakes
       Date: 2025-11-19
     - Name: Movie Night @ 6:30pm
@@ -80,9 +81,12 @@ Calendar:
         - 2026-05-13
         - 2026-06-10
   - Color: Purple
-    - Name: Walk and Ride
+    - Name: Walk and Ride (cancelled)
       Dates:
         - 2025-09-25
+  - Color: Purple
+    - Name: Walk and Ride
+      Dates:
         - 2025-10-02
         - 2025-10-09
         - 2025-10-16
@@ -143,3 +147,4 @@ Calendar:
         - 2026-04-24
     - Name: Memorial Day, No School
       Date: 2026-05-25
+`
