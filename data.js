@@ -67,12 +67,14 @@ Calendar:
     - Name: Early Release, PK-12 Conference
       Date: 2025-11-03
   - Color: Blue
+    - Name: Moved! PTO Meeting @ 6pm
+      Date: 2025-11-12
+  - Color: Blue
     - Name: PTO Meeting @ 6pm
       Dates:
         - 2025-08-12
         - 2025-09-09
         - 2025-10-14
-        - 2025-11-11
         - 2025-12-09
         - 2026-01-14
         - 2026-02-11
