@@ -17,7 +17,7 @@ Calendar:
       Dates:
         - 2025-11-21
         - 2026-02-06
-    - Name: K-5 December Concert
+    - Name: K-5 December Concert @ 6:30pm
       Date: 2025-12-11
     - Name: National School Counseling Week
       Dates:
@@ -43,9 +43,9 @@ Calendar:
         - 2026-03-27
     - Name: DBS School Musical @ 6:30pm
       Date: 2026-04-16
-    - Name: K to 2 Spring Concert
+    - Name: K to 2 Spring Concert @ 6:30pm
       Date: 2026-05-13
-    - Name: 3 to 5 Spring Concert
+    - Name: 3 to 5 Spring Concert @ 6:30pm
       Date: 2026-05-21
     - Name: Ice Cream Social
       Date: 2026-06-12
