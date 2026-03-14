@@ -41,7 +41,9 @@ Calendar:
         - 2026-03-25
         - 2026-03-26
         - 2026-03-27
-    - Name: DBS School Musical @ 6:30pm
+    - Name: Spring Picture Day
+      Date: 2026-04-13
+    - Name: Drama Club Performance of "CATS!" @ 6:30pm
       Date: 2026-04-16
     - Name: K to 2 Spring Concert @ 6:30pm
       Date: 2026-05-13
@@ -50,7 +52,7 @@ Calendar:
     - Name: Ice Cream Social
       Date: 2026-06-12
     - Name: Last Day
-      Date: 2026-06-15
+      Date: 2026-06-17
   - Color: Yellow
     - Name: Late Start (9:45-10am)
       Dates:
