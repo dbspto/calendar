@@ -83,8 +83,7 @@ Calendar:
         - 2026-02-10
         - 2026-03-10
         - 2026-04-14
-        - 2026-05-12
-        - 2026-06-09
+        - 2026-05-05
   - Color: Purple
     - Name: Walk and Ride (cancelled)
       Dates:
