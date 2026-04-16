@@ -49,8 +49,10 @@ Calendar:
       Date: 2026-05-13
     - Name: 3 to 5 Spring Concert @ 6:30pm
       Date: 2026-05-21
-    - Name: Ice Cream Social
+    - Name: Field Day
       Date: 2026-06-12
+    - Name: Ice Cream Social
+      Date: 2026-06-16
     - Name: Last Day
       Date: 2026-06-17
   - Color: Yellow
