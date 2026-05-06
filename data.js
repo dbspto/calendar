@@ -49,9 +49,11 @@ Calendar:
       Date: 2026-05-13
     - Name: 3 to 5 Spring Concert @ 6:30pm
       Date: 2026-05-21
+    - Name: Color Run
+      Date: 2026-06-05
     - Name: Field Day
       Date: 2026-06-12
-    - Name: Ice Cream Social
+    - Name: Ice Cream Social @ 5:00pm
       Date: 2026-06-16
     - Name: Last Day
       Date: 2026-06-17
