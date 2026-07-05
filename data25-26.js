@@ -1,0 +1,158 @@
+const yamlString = `
+Calendar:
+  - Color: Green
+    - Name: First Day of School
+      Date: 2025-08-28
+    - Name: Open House
+      Date: 2025-09-11
+    - Name: Picture Day
+      Date: 2025-09-30
+    - Name: Dance (Light up the night)
+      Date: 2025-10-24
+    - Name: Unity Day
+      Date: 2025-10-31
+    - Name: Picture Retakes
+      Date: 2025-11-19
+    - Name: Movie Night @ 6:30pm
+      Dates:
+        - 2025-11-21
+        - 2026-02-06
+    - Name: K-5 December Concert @ 6:30pm
+      Date: 2025-12-11
+    - Name: National School Counseling Week
+      Dates:
+        - 2026-02-03
+        - 2026-02-04
+        - 2026-02-05
+    - Name: Bring An Adult to Music Week
+      Dates:
+        - 2026-02-09
+        - 2026-02-10
+        - 2026-02-11
+        - 2026-02-12
+        - 2026-02-13
+    - Name: Book Fair Kick-Off Event at Norwich
+      Date: 2026-03-21
+    - Name: Book Fair
+      Dates:
+        - 2026-03-22
+        - 2026-03-23
+        - 2026-03-24
+        - 2026-03-25
+        - 2026-03-26
+        - 2026-03-27
+    - Name: Spring Picture Day
+      Date: 2026-04-13
+    - Name: Drama Club Performance of "CATS!" @ 6:30pm
+      Date: 2026-04-16
+    - Name: K to 2 Spring Concert @ 6:30pm
+      Date: 2026-05-13
+    - Name: 3 to 5 Spring Concert @ 6:30pm
+      Date: 2026-05-21
+    - Name: Color Run (9-11am)
+      Date: 2026-06-15
+    - Name: Field Day (afternoon)
+      Date: 2026-06-15
+    - Name: Ice Cream Social @ 5:00pm
+      Date: 2026-06-16
+    - Name: Last Day
+      Date: 2026-06-17
+  - Color: Yellow
+    - Name: Late Start (9:45-10am)
+      Dates:
+        - 2025-09-15
+        - 2025-10-20
+        - 2025-11-17
+        - 2025-12-15
+        - 2026-02-16
+        - 2026-03-30
+        - 2026-04-13
+        - 2026-05-18
+    - Name: Early Release PK-12
+      Date: 2026-03-19
+    - Name: Early Release, PK-12 Conference
+      Date: 2025-11-03
+  - Color: Blue
+    - Name: Moved! PTO Meeting @ 6pm
+      Date: 2025-11-12
+  - Color: Blue
+    - Name: PTO Meeting @ 6pm
+      Dates:
+        - 2025-08-12
+        - 2025-09-09
+        - 2025-10-14
+        - 2025-11-12
+        - 2025-12-09
+        - 2026-01-13
+        - 2026-02-10
+        - 2026-03-10
+        - 2026-04-14
+        - 2026-05-05
+  - Color: Purple
+    - Name: Walk and Ride (cancelled)
+      Dates:
+        - 2025-09-25
+  - Color: Purple
+    - Name: Walk and Ride
+      Dates:
+        - 2025-10-02
+        - 2025-10-09
+        - 2025-10-16
+        - 2025-10-23
+        - 2025-10-30
+        - 2026-05-07
+        - 2026-05-14
+        - 2026-05-21
+        - 2026-05-28
+        - 2026-06-04
+  - Color: Red
+    - Name: Labor Day, No School
+      Date: 2025-09-01
+    - Name: Inservice, No School
+      Dates:
+        - 2025-10-10
+        - 2026-01-19
+        - 2026-03-03
+    - Name: Indigenous People's Day, No School
+      Date: 2025-10-13
+    - Name: Conferences, No School PK-12
+      Dates:
+        - 2025-11-04
+        - 2026-03-20
+    - Name: Veteran's Day, No School
+      Date: 2025-11-11
+    - Name: Holiday Break, No School
+      Dates:
+        - 2025-11-26
+        - 2025-11-27
+        - 2025-11-28
+    - Name: Winter Break, No School
+      Dates:
+        - 2025-12-22
+        - 2025-12-23
+        - 2025-12-24
+        - 2025-12-25
+        - 2025-12-26
+        - 2025-12-29
+        - 2025-12-30
+        - 2025-12-31
+        - 2026-01-01
+        - 2026-01-02
+    - Name: February Break, No School
+      Dates:
+        - 2026-02-23
+        - 2026-02-24
+        - 2026-02-25
+        - 2026-02-26
+        - 2026-02-27
+        - 2026-03-02
+    - Name: April Break, No School
+      Dates:
+        - 2026-04-20
+        - 2026-04-21
+        - 2026-04-22
+        - 2026-04-23
+        - 2026-04-24
+    - Name: Memorial Day, No School
+      Date: 2026-05-25
+`
