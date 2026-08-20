@@ -27,7 +27,6 @@
       <div class="controls" role="toolbar" aria-label="Controls">
         <div class="toggle" role="tablist" aria-label="View toggle">
           <button id="monthViewBtn" class="btn" role="tab" aria-selected="false">Month View</button>
-          <button id="weekViewBtn" class="btn" role="tab" aria-selected="false">Week View</button>
           <button id="listViewBtn" class="btn" role="tab" aria-selected="false">List View</button>
         </div>
 
@@ -50,7 +49,7 @@
           <div class="item" data-color="Purple"><div class="swatch c-Purple"></div>Purple</div>
           <div class="item" data-color="Blue"><div class="swatch c-Blue"></div>Blue</div>
           <button id="showPreviousBtn" class="btn previous-events-toggle" title="Toggle previous events">
-            <span id="previousEventsIcon">👁️</span> Show Previous
+            Show Previous
           </button>
         </div>
       </div>
@@ -80,18 +79,6 @@
         </div>
       </div>
 
-      <!-- Week area (single week row) -->
-      <div id="weekArea" style="display:none;">
-        <div class="week-grid" id="weekGrid">
-          <!-- 7 week-day cells -->
-        </div>
-        <div class="pager" id="weekPager" role="navigation" aria-label="Week pager" style="margin-top:12px;">
-          <button id="prevWeek" class="btn">◀ Prev</button>
-          <div id="weekLabel" class="small" style="min-width:160px;text-align:center"></div>
-          <button id="nextWeek" class="btn">Next ▶</button>
-        </div>
-      </div>
-
       <!-- List view -->
       <div id="listArea" style="display:none; margin-top:12px;">
         <!-- Remove the legend/filter buttons above the rows -->
@@ -106,13 +93,5 @@
   <script src="data.js"></script>
   <script src="primary.js"></script>
   <script src="script.js"></script>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6KEMY4CDWR"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-6KEMY4CDWR');
-  </script>
 </body>
 </html>
