@@ -3,6 +3,10 @@ Calendar:
   - Color: Green
     - Name: First Day of School
       Date: 2026-08-27
+    - Name: DBS Open House (6-7pm)
+      Date: 2026-09-10
+    - Name: Picture Day
+      Date: 2026-09-29
     - Name: Last Day of School
       Date: 2027-06-15
   - Color: Yellow
