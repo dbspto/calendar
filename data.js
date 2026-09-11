@@ -7,6 +7,8 @@ Calendar:
       Date: 2026-09-10
     - Name: Picture Day
       Date: 2026-09-29
+    - Name: Picture Re-take Day
+      Date: 2026-11-18
     - Name: Last Day of School
       Date: 2027-06-15
   - Color: Yellow
@@ -23,6 +25,8 @@ Calendar:
       Dates:
         - 2026-11-02
         - 2027-03-25
+    - Name: Unity Day Assembly and Rally
+      Date: 2026-10-30
   - Color: Red
     - Name: No School: Labor Day
       Date: 2026-09-07
