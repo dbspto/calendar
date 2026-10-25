@@ -18,7 +18,7 @@ Calendar:
     - Name: Last Day of School
       Date: 2027-06-15
   - Color: Yellow
-    - Name: Late Start (9:45-10am)
+    - Name: Late Start (9:45-10am), PK In Service
       Dates:
         - 2026-09-21
         - 2026-10-19
