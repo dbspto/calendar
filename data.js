@@ -7,7 +7,13 @@ Calendar:
       Date: 2026-09-10
     - Name: Picture Day
       Date: 2026-09-29
+    - Name: PTO Fall Dance (6-7:30pm)
+      Date: 2026-11-06
+    - Name: Final day to order from the PTO Fundraiser
+      Date: 2026-11-06
     - Name: Picture Re-take Day
+      Date: 2026-11-18
+    - Name: HSD Board Meeting (6pm)
       Date: 2026-11-18
     - Name: Last Day of School
       Date: 2027-06-15
@@ -21,11 +27,11 @@ Calendar:
         - 2027-03-15
         - 2027-04-12
         - 2027-05-17
+    - Name: Early Release - Parent Teacher Conferences (No PreK)
+      Date: 2026-11-02
     - Name: Early Release: Conferences
-      Dates:
-        - 2026-11-02
-        - 2027-03-25
-    - Name: Unity Day Assembly and Rally
+      Date: 2027-03-25
+    - Name: Unity Day Assembly and Rally @ 2pm
       Date: 2026-10-30
   - Color: Red
     - Name: No School: Labor Day
