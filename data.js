@@ -15,6 +15,8 @@ Calendar:
       Date: 2026-11-18
     - Name: HSD Board Meeting (6pm)
       Date: 2026-11-18
+    - Name: Winter Concert (6:30pm)
+      Date: 2026-12-17
     - Name: Last Day of School
       Date: 2027-06-15
   - Color: Yellow
